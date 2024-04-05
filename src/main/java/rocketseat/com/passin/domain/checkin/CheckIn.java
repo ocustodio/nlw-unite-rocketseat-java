@@ -17,13 +17,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 
 public class CheckIn {
+
     @Id
-    @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "created_at")
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     @OneToOne
     @JoinColumn(name = "attendee_id", nullable = false)
