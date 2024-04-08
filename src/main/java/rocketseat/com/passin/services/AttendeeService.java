@@ -3,6 +3,7 @@ package rocketseat.com.passin.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import rocketseat.com.passin.domain.attendee.Attendee;
+import rocketseat.com.passin.domain.attendee.exceptions.AttendeeAlreadyExistException;
 import rocketseat.com.passin.domain.checkin.CheckIn;
 import rocketseat.com.passin.dto.attendee.AttendeeDetails;
 import rocketseat.com.passin.dto.attendee.AttendeesListResponseDTO;
@@ -32,9 +33,26 @@ public class AttendeeService {
             Optional<CheckIn> checkIn = this.checkInRepository.findByAttendeeId(attendee.getId());
             LocalDateTime checkedInAt = checkIn.isPresent() ? checkIn.get().getCreatedAt() : null;
 
-            return new AttendeeDetails(attendee.getId(), attendee.getName(), attendee.getEmail(), attendee.getCreatedAt(), checkedInAt);
+            return new AttendeeDetails(
+                    attendee.getId(),
+                    attendee.getName(),
+                    attendee.getEmail(),
+                    attendee.getCreatedAt(),
+                    checkedInAt);
         }).toList();
 
         return new AttendeesListResponseDTO(attendeeDetailsList);
+    }
+
+    public void verifyAttendeeSubscription(String eventId, String email) {
+        Optional<Attendee> isAttendeeRegistered = this.attendeeRepository.findByEventIdAndEmail(eventId, email);
+
+        if (isAttendeeRegistered.isPresent()) throw new AttendeeAlreadyExistException("Attendee is already registered");
+    }
+
+    public Attendee registerAttendee(Attendee newAttendee) {
+        this.attendeeRepository.save(newAttendee);
+
+        return newAttendee;
     }
 }
